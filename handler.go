@@ -46,7 +46,7 @@ func (h *handler) handleChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	system := Message{Role: "system", Content: "你是学习辅助AI, 只做分布引导和学习计划分析, 其余拒绝"}
+	system := Message{Role: "system", Content: "你是学习辅助AI, 只做分步引导和学习计划分析, 其余拒绝"}
 	req.Messages = append([]Message{system}, req.Messages...)
 	req.Model = "deepseek-flash"
 	finalBody, err := json.Marshal(req)
