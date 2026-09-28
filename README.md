@@ -72,15 +72,15 @@ Content-Type: application/json
 
 ```
 {
-"choices": [
-{
-"message": {
-"role": "assistant",
-"content": "..."
-}
-}
-],
-"usage": { ... }
+    "choices": [
+        {
+            "message": {
+                "role": "assistant",
+                "content": "..."
+            }
+        }
+    ],
+    "usage": { ... }
 }
 ```
 

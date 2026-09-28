@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -32,6 +33,7 @@ func (h *handler) handleChat(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
+		writeError(w, http.StatusBadRequest, "failed to read request body")
 		log.Println(err)
 		return
 	}
@@ -39,6 +41,7 @@ func (h *handler) handleChat(w http.ResponseWriter, r *http.Request) {
 	var req ChatRequest
 	err = json.Unmarshal(body, &req)
 	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid JSON body")
 		log.Println(err)
 		return
 	}
@@ -48,6 +51,7 @@ func (h *handler) handleChat(w http.ResponseWriter, r *http.Request) {
 	req.Model = "deepseek-flash"
 	finalBody, err := json.Marshal(req)
 	if err != nil {
+		writeError(w, http.StatusInternalServerError, "internal error")
 		log.Println(err)
 		return
 	}
@@ -76,12 +80,15 @@ func (h *handler) handleChat(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Println(err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadGateway)
-		w.Write([]byte(`{"error":"upstream failed"}`))
+		writeError(w, http.StatusBadGateway, "upstream failed")
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(result.([]byte))
+}
 
+func writeError(w http.ResponseWriter, status int, msg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write([]byte(fmt.Sprintf(`{"error":%q}`, msg)))
 }
